@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LaunchServiceProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fit5171_2019_22</a> &gt; <a href="index.source.html" class="el_package">rockets.model</a> &gt; <span class="el_source">LaunchServiceProvider.java</span></div><h1>LaunchServiceProvider.java</h1><pre class="source lang-java linenums">package rockets.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Sets;
+import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import static org.apache.commons.lang3.Validate.*;
+import static org.neo4j.ogm.annotation.Relationship.INCOMING;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+
+@NodeEntity
+@CompositeIndex(properties = {&quot;name&quot;,&quot;yearFounded&quot;,&quot;country&quot;}, unique = true)
+public class LaunchServiceProvider extends Entity {
+
+    @Property(name = &quot;name&quot;)
+    private String name;
+
+    @Property(name = &quot;yearFounded&quot;)
+    private int yearFounded;
+
+    @Property(name = &quot;country&quot;)
+    private String country;
+
+    @Property(name = &quot;headquarters&quot;)
+    private String headquarters;
+
+<span class="fc" id="L33">    @Relationship(type = &quot;MANUFACTURES&quot;, direction = OUTGOING)</span>
+    @JsonIgnore
+    private Set&lt;Rocket&gt; rockets = new HashSet&lt;&gt;();
+
+    @Relationship(type = &quot;LAUNCHSERVICEPROVIDER&quot;, direction = OUTGOING)
+    @JsonIgnore
+    private Set&lt;Launch&gt; launches;
+
+    public LaunchServiceProvider(){
+<span class="fc" id="L42">        super();</span>
+<span class="fc" id="L43">    }</span>
+
+<span class="fc" id="L45">    public LaunchServiceProvider(String name, int yearFounded, String country) {</span>
+        // change
+<span class="fc" id="L47">        notNull(name);</span>
+<span class="fc" id="L48">        notNull(yearFounded);</span>
+<span class="fc" id="L49">        notNull(country);</span>
+
+<span class="fc" id="L51">        this.name = name;</span>
+<span class="fc" id="L52">        this.yearFounded = yearFounded;</span>
+<span class="fc" id="L53">        this.country = country;</span>
+
+<span class="fc" id="L55">        rockets = Sets.newLinkedHashSet();</span>
+<span class="fc" id="L56">    }</span>
+
+    public String getName() {
+<span class="fc" id="L59">        return name;</span>
+    }
+
+    public int getYearFounded() {
+<span class="fc" id="L63">        return yearFounded;</span>
+    }
+
+    public String getCountry() {
+<span class="fc" id="L67">        return country;</span>
+    }
+
+    public String getHeadquarters() {
+<span class="fc" id="L71">        return headquarters;</span>
+    }
+
+    public Set&lt;Rocket&gt; getRockets() {
+<span class="nc" id="L75">        return rockets;</span>
+    }
+
+    public void setHeadquarters(String headquarters) {
+
+<span class="nc" id="L80">        notBlank(headquarters, &quot;headquarters cannot be null or empty&quot;);</span>
+<span class="nc" id="L81">        this.headquarters = headquarters;</span>
+<span class="nc" id="L82">    }</span>
+
+    public void setRockets(Set&lt;Rocket&gt; rockets) {
+<span class="nc" id="L85">        notNull(rockets,&quot;rockets cannot be null&quot;);</span>
+<span class="nc" id="L86">        this.rockets = rockets;</span>
+<span class="nc" id="L87">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L93">        LaunchServiceProvider that  = (LaunchServiceProvider) o;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        return yearFounded == that.yearFounded &amp;&amp;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                Objects.equals(name, that.name) &amp;&amp;</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                Objects.equals(country, that.country);</span>
+    }
+
+    @Override
+    public int hashCode() {
+
+<span class="fc" id="L102">        return Objects.hash(name, yearFounded, country);</span>
+    }
+
+    public Set&lt;Launch&gt; getLaunches(){
+<span class="fc" id="L106">        return launches;</span>
+    }
+
+    public void setLaunches(Set&lt;Launch&gt; newlaunches){
+<span class="fc" id="L110">        notNull(newlaunches,&quot;launches cannot be null&quot;);</span>
+<span class="fc" id="L111">        this.launches = newlaunches;</span>
+<span class="fc" id="L112">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

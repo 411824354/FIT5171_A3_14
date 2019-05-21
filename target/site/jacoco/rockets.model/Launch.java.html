@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Launch.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fit5171_2019_22</a> &gt; <a href="index.source.html" class="el_package">rockets.model</a> &gt; <span class="el_source">Launch.java</span></div><h1>Launch.java</h1><pre class="source lang-java linenums">package rockets.model;
+
+import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Set;
+
+import static org.apache.commons.lang3.Validate.notBlank;
+import static org.apache.commons.lang3.Validate.notNull;
+import static org.neo4j.ogm.annotation.Relationship.INCOMING;
+
+@NodeEntity
+@CompositeIndex(properties = {&quot;launchDate&quot;,&quot;launchVehicle&quot;,&quot;launchServiceProvider&quot;,&quot;orbit&quot;}, unique = true)
+public class Launch extends Entity {
+
+<span class="fc" id="L21">    public enum LaunchOutcome {</span>
+<span class="fc" id="L22">        FAILED, SUCCESSFUL</span>
+    }
+
+    @Property(name = &quot;launchDate&quot;)
+    private LocalDate launchDate;
+
+    @Relationship(type = &quot;LAUNCHVEHICLE&quot;, direction = INCOMING)
+    private Rocket launchVehicle;
+
+    @Relationship(type = &quot;LAUNCHSERVICEPROVIDER&quot;, direction = INCOMING)
+    private LaunchServiceProvider launchServiceProvider;
+
+    @Property(name = &quot;payload&quot;)
+    private Set&lt;String&gt; payload;
+
+    @Property(name = &quot;launchSite&quot;)
+    private String launchSite;
+
+    @Property(name = &quot;orbit&quot;)
+    private String orbit;
+
+    @Property(name = &quot;function&quot;)
+    private String function;
+
+    @Property(name = &quot;price&quot;)
+    private BigDecimal price;
+
+    @Property(name = &quot;launchOutcome&quot;)
+    private LaunchOutcome launchOutcome;
+
+    // add constructor
+    public Launch() {
+<span class="fc" id="L54">        super();</span>
+<span class="fc" id="L55">    }</span>
+<span class="fc" id="L56">    public Launch(LocalDate launchDate, Rocket rocket, LaunchServiceProvider provider, String orbit) {</span>
+<span class="fc" id="L57">        this.launchDate = launchDate;</span>
+<span class="fc" id="L58">        this.launchVehicle = rocket;</span>
+<span class="fc" id="L59">        this.launchServiceProvider = provider;</span>
+<span class="fc" id="L60">        this.orbit = orbit;</span>
+<span class="fc" id="L61">    }</span>
+
+    public LocalDate getLaunchDate() {
+<span class="fc" id="L64">        return launchDate;</span>
+    }
+
+    public void setLaunchDate(LocalDate launchDate) {
+<span class="fc" id="L68">        notNull(launchDate, &quot;Invalid launch date&quot;);</span>
+<span class="fc" id="L69">         this.launchDate = launchDate;</span>
+
+<span class="fc" id="L71">    }</span>
+
+    public Rocket getLaunchVehicle() {
+<span class="fc" id="L74">        return launchVehicle;</span>
+    }
+
+    public void setLaunchVehicle(Rocket launchVehicle) {
+<span class="fc" id="L78">        notNull(launchVehicle, &quot;Invalid launch vehicle&quot;);</span>
+<span class="fc" id="L79">        this.launchVehicle = launchVehicle;</span>
+<span class="fc" id="L80">    }</span>
+
+    public LaunchServiceProvider getLaunchServiceProvider() {
+<span class="fc" id="L83">        return launchServiceProvider;</span>
+    }
+
+    public void setLaunchServiceProvider(LaunchServiceProvider launchServiceProvider) {
+<span class="fc" id="L87">        notNull(launchVehicle, &quot;Invalid Launch Service Provider&quot;);</span>
+<span class="fc" id="L88">        this.launchServiceProvider = launchServiceProvider;</span>
+<span class="fc" id="L89">    }</span>
+
+    public Set&lt;String&gt; getPayload() {
+<span class="fc" id="L92">        return payload;</span>
+    }
+
+    public void setPayload(Set&lt;String&gt; payload) {
+<span class="fc" id="L96">        notNull(payload,&quot;Payload cannot be null.&quot;);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (payload.isEmpty()){</span>
+<span class="fc" id="L98">            throw new IllegalArgumentException(&quot;payload cannot be null or empty&quot;);</span>
+        }
+        else{
+<span class="fc" id="L101">            this.payload = payload;</span>
+        }
+
+<span class="fc" id="L104">    }</span>
+
+    public String getLaunchSite() {
+
+<span class="nc" id="L108">        return launchSite;</span>
+    }
+
+    public void setLaunchSite(String launchSite) {
+<span class="fc" id="L112">        notBlank(launchSite, &quot;LaunchSite cannot be empty or null&quot;);</span>
+<span class="fc" id="L113">        notNull(launchSite,&quot;LaunchSite cannot be empty or null&quot;);</span>
+<span class="fc" id="L114">        this.launchSite = launchSite;</span>
+<span class="fc" id="L115">    }</span>
+
+    public String getOrbit() {
+<span class="fc" id="L118">        return orbit;</span>
+    }
+
+    public void setOrbit(String orbit) {
+<span class="fc" id="L122">        notBlank(orbit, &quot;Orbit cannot be empty or null&quot;);</span>
+<span class="fc" id="L123">        notNull(orbit,&quot;Orbit cannot be empty or null&quot;);</span>
+<span class="fc" id="L124">        this.orbit = orbit;</span>
+<span class="fc" id="L125">    }</span>
+
+    public String getFunction() {
+<span class="fc" id="L128">        return function;</span>
+    }
+
+    public void setFunction(String function) {
+<span class="fc" id="L132">        notBlank(function, &quot;Function cannot be empty or null&quot;);</span>
+<span class="fc" id="L133">        notNull(function,&quot;Function cannot be empty or null&quot;);</span>
+<span class="fc" id="L134">        this.function = function;</span>
+<span class="fc" id="L135">    }</span>
+
+    public BigDecimal getPrice() {
+<span class="fc" id="L138">        return price;</span>
+    }
+
+    public void setPrice(BigDecimal price) {
+<span class="fc" id="L142">        notNull(price,&quot;Price cannot be 0 or null.&quot;);</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (price == BigDecimal.valueOf(0)){</span>
+<span class="fc" id="L144">            throw new IllegalArgumentException(&quot;Price cannot be 0 or null.&quot;);</span>
+        }
+<span class="fc" id="L146">        this.price = price;</span>
+<span class="fc" id="L147">    }</span>
+
+    public LaunchOutcome getLaunchOutcome() {
+<span class="fc" id="L150">        return launchOutcome;</span>
+    }
+
+    public void setLaunchOutcome(LaunchOutcome launchOutcome) {
+<span class="fc" id="L154">        notNull(launchOutcome,&quot;LaunchOutcome cannot be null.&quot;);</span>
+<span class="fc" id="L155">        this.launchOutcome = launchOutcome;</span>
+<span class="fc" id="L156">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L161" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L162">        Launch launch = (Launch) o;</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        return Objects.equals(launchDate, launch.launchDate) &amp;&amp;</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                Objects.equals(launchVehicle, launch.launchVehicle) &amp;&amp;</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">                Objects.equals(launchServiceProvider, launch.launchServiceProvider) &amp;&amp;</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">                Objects.equals(orbit, launch.orbit);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L171">        return Objects.hash(launchDate, launchVehicle, launchServiceProvider, orbit);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

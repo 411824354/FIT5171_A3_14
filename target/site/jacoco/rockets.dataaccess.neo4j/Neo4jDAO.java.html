@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Neo4jDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fit5171_2019_22</a> &gt; <a href="index.source.html" class="el_package">rockets.dataaccess.neo4j</a> &gt; <span class="el_source">Neo4jDAO.java</span></div><h1>Neo4jDAO.java</h1><pre class="source lang-java linenums">package rockets.dataaccess.neo4j;
+
+import com.google.common.collect.Sets;
+import org.neo4j.cypher.internal.frontend.v2_3.SemanticDirection;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.transaction.Transaction;
+import rockets.dataaccess.DAO;
+import rockets.model.Entity;
+import rockets.model.Launch;
+import rockets.model.LaunchServiceProvider;
+import rockets.model.Rocket;
+import rockets.model.User;
+
+import java.util.Collection;
+
+import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
+
+public class Neo4jDAO implements DAO {
+    private static final int DEPTH_ENTITY = 1;
+
+    private Session session;
+
+<span class="fc" id="L25">    public Neo4jDAO(Session session) {</span>
+<span class="fc" id="L26">        this.session = session;</span>
+<span class="fc" id="L27">    }</span>
+
+    @Override
+    public &lt;T extends Entity&gt; T load(Class&lt;T&gt; clazz, Long id) {
+<span class="fc" id="L31">        return session.load(clazz, id, DEPTH_ENTITY);</span>
+    }
+
+    @Override
+    public &lt;T extends Entity&gt; T createOrUpdate(T entity) {
+<span class="fc" id="L36">        Class clazz = entity.getClass();</span>
+
+<span class="fc" id="L38">        T existingEntity = findExistingEntity(entity, clazz);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (null != existingEntity) {</span>
+<span class="fc" id="L40">            entity.setId(existingEntity.getId());</span>
+        }
+<span class="fc" id="L42">        Transaction tx = session.beginTransaction();</span>
+<span class="fc" id="L43">        session.save(entity);</span>
+<span class="fc" id="L44">        tx.commit();</span>
+<span class="fc" id="L45">        return entity;</span>
+    }
+
+    private &lt;T extends Entity&gt; T findExistingEntity(Entity entity, Class clazz) {
+<span class="fc" id="L49">        Entity existingEntity = null;</span>
+<span class="fc" id="L50">        Filters filters = new Filters();</span>
+<span class="fc" id="L51">        Collection&lt;? extends Entity&gt; collection = Sets.newLinkedHashSet();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (clazz.equals(Rocket.class)) {</span>
+<span class="fc" id="L53">            Rocket rocket = (Rocket) entity;</span>
+<span class="fc" id="L54">            filters.add(new Filter(&quot;name&quot;, EQUALS, rocket.getName()))</span>
+<span class="fc" id="L55">                    .and(new Filter(&quot;country&quot;, EQUALS, rocket.getCountry()));</span>
+<span class="fc" id="L56">            collection = session.loadAll(Rocket.class, filters);</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        } else if (clazz.equals(User.class)) {</span>
+<span class="nc" id="L58">            User user = (User) entity;</span>
+<span class="nc" id="L59">            filters.add(new Filter(&quot;email&quot;, EQUALS, user.getEmail()));</span>
+<span class="nc" id="L60">            collection = session.loadAll(User.class, filters);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        } else if (clazz.equals(Launch.class)) {</span>
+<span class="fc" id="L62">            Launch launch = (Launch) entity;</span>
+<span class="fc" id="L63">            filters.add(new Filter(&quot;launchDate&quot;, EQUALS, launch.getLaunchDate()))</span>
+<span class="fc" id="L64">                    .and(new Filter(&quot;launchVehicle&quot;, EQUALS, launch.getLaunchVehicle()))</span>
+<span class="fc" id="L65">                    .and(new Filter(&quot;launchServiceProvider&quot;, EQUALS, launch.getLaunchServiceProvider()))</span>
+<span class="fc" id="L66">                    .and(new Filter(&quot;orbit&quot;, EQUALS,launch.getOrbit()));</span>
+<span class="fc" id="L67">            collection = session.loadAll(Launch.class, filters);</span>
+<span class="pc bnc" id="L68" title="All 2 branches missed.">        } else if (clazz.equals(LaunchServiceProvider.class)) {</span>
+<span class="nc" id="L69">            LaunchServiceProvider lsp = (LaunchServiceProvider) entity;</span>
+<span class="nc" id="L70">            filters.add(new Filter(&quot;name&quot;, EQUALS, lsp.getName()))</span>
+<span class="nc" id="L71">                    .and(new Filter(&quot;yearFounded&quot;, EQUALS, lsp.getYearFounded()))</span>
+<span class="nc" id="L72">                    .and(new Filter(&quot;country&quot;, EQUALS, lsp.getCountry()));</span>
+<span class="nc" id="L73">            collection = session.loadAll(LaunchServiceProvider.class, filters);</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (!collection.isEmpty()) {</span>
+<span class="fc" id="L76">            existingEntity = collection.iterator().next();</span>
+        }
+<span class="fc" id="L78">        return (T) existingEntity;</span>
+    }
+
+    @Override
+    public &lt;T extends Entity&gt; Collection&lt;T&gt; loadAll(Class&lt;T&gt; clazz) {
+<span class="fc" id="L83">        return session.loadAll(clazz);</span>
+    }
+
+    // TODO: need to be tested!
+    public &lt;T extends Entity&gt; void delete(T entity) {
+
+<span class="fc" id="L89">        session.delete(entity);</span>
+<span class="fc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

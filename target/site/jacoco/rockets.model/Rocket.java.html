@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Rocket.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fit5171_2019_22</a> &gt; <a href="index.source.html" class="el_package">rockets.model</a> &gt; <span class="el_source">Rocket.java</span></div><h1>Rocket.java</h1><pre class="source lang-java linenums">package rockets.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.neo4j.ogm.annotation.CompositeIndex;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.Objects;
+import java.util.ArrayList;
+
+import static org.apache.commons.lang3.Validate.notBlank;
+import static org.apache.commons.lang3.Validate.notNull;
+import static org.neo4j.ogm.annotation.Relationship.INCOMING;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+
+import java.sql.*;
+import java.util.Set;
+
+@NodeEntity
+@CompositeIndex(properties = {&quot;name&quot;,&quot;country&quot;,&quot;manufacturer&quot;}, unique = true)
+public class Rocket extends Entity {
+
+    @Property(name = &quot;name&quot;)
+    private String name;
+
+    @Property(name = &quot;country&quot;)
+    private String country;
+
+    @Relationship(type = &quot;MANUFACTURES&quot;, direction = INCOMING)
+    private LaunchServiceProvider manufacturer;
+
+    @Property(name = &quot;massToLEO&quot;)
+    private String massToLEO;
+
+    @Property(name = &quot;massToGTO&quot;)
+    private String massToGTO;
+
+    @Property(name = &quot;massToOther&quot;)
+    private String massToOther;
+
+    // extension
+
+    @Relationship(type = &quot;LAUNCHVEHICLE&quot;, direction = OUTGOING)
+    @JsonIgnore
+    private Set&lt;Launch&gt; launches;
+
+//    private static ArrayList&lt;LaunchServiceProvider&gt; manufacturerList = new ArrayList&lt;&gt;();
+
+    public Rocket(){
+<span class="fc" id="L51">        super();</span>
+<span class="fc" id="L52">    }</span>
+    /**
+     * All parameters shouldn't be null.
+     *
+     * @param name
+     * @param country
+     * @param manufacturer
+     */
+
+
+<span class="fc" id="L62">    public Rocket(String name, String country, LaunchServiceProvider manufacturer) {</span>
+<span class="fc" id="L63">        notNull(name);</span>
+<span class="fc" id="L64">        notNull(country);</span>
+<span class="fc" id="L65">        notNull(manufacturer);</span>
+
+<span class="fc" id="L67">        this.name = name;</span>
+<span class="fc" id="L68">        this.country = country;</span>
+<span class="fc" id="L69">        this.manufacturer = manufacturer;</span>
+        
+//        if(manufacturerList.contains(manufacturer)){
+//            this.manufacturer = manufacturer;
+//        }
+//        else{
+//            throw new IllegalArgumentException(&quot;Invalid manufacture!&quot;);
+//        }
+
+<span class="fc" id="L78">    }</span>
+
+//    public static ArrayList&lt;LaunchServiceProvider&gt; getAllProviders() throws ClassNotFoundException, SQLException {
+//        // DBConnection is the connection with database.
+//        Connection conn=DBConnection.getDBConnection().getConnection();
+//        Statement stm;
+//        stm = conn.createStatement();
+//        String sql = &quot;Select * From LaunchServiceProvider&quot;;
+//        ResultSet rst;
+//        rst = stm.executeQuery(sql);
+//        while (rst.next()) {
+//            LaunchServiceProvider provider = new LaunchServiceProvider(rst.getString(&quot;name&quot;), rst.getInt(&quot;year&quot;), rst.getString(&quot;country&quot;));
+//            manufacturerList.add(provider);
+//        }
+//        return manufacturerList;
+//    }
+
+    public String getName() {
+<span class="fc" id="L96">        return name;</span>
+    }
+
+    public String getCountry() {
+<span class="fc" id="L100">        return country;</span>
+    }
+
+    public LaunchServiceProvider getManufacturer() {
+<span class="fc" id="L104">        return manufacturer;</span>
+    }
+
+    public String getMassToLEO() {
+<span class="fc" id="L108">        return massToLEO;</span>
+    }
+
+    public String getMassToGTO() {
+<span class="fc" id="L112">        return massToGTO;</span>
+    }
+
+    public String getMassToOther() {
+<span class="fc" id="L116">        return massToOther;</span>
+    }
+
+    public void setMassToLEO(String massToLEO) {
+<span class="nc" id="L120">        notNull(massToLEO, &quot;massToLEO cannot be null&quot;);</span>
+<span class="nc" id="L121">        this.massToLEO = massToLEO;</span>
+<span class="nc" id="L122">    }</span>
+
+    public void setMassToGTO(String massToGTO) {
+<span class="nc" id="L125">        notNull(massToLEO, &quot;massToGTO cannot be null&quot;);</span>
+<span class="nc" id="L126">        this.massToGTO = massToGTO;</span>
+<span class="nc" id="L127">    }</span>
+
+    public void setMassToOther(String massToOther) {
+<span class="nc" id="L130">        notNull(massToOther,&quot;massToOther cannot be null&quot;);</span>
+<span class="nc" id="L131">        this.massToOther = massToOther;</span>
+<span class="nc" id="L132">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L137" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L138">        Rocket rocket = (Rocket) o;</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        return Objects.equals(name, rocket.name) &amp;&amp;</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">                Objects.equals(country, rocket.country) &amp;&amp;</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                Objects.equals(manufacturer, rocket.manufacturer);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L146">        return Objects.hash(name, country, manufacturer);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L151">        return &quot;Rocket{&quot; +</span>
+                &quot;name='&quot; + name + '\'' +
+                &quot;, country='&quot; + country + '\'' +
+                &quot;, manufacturer='&quot; + manufacturer + '\'' +
+                &quot;, massToLEO='&quot; + massToLEO + '\'' +
+                &quot;, massToGTO='&quot; + massToGTO + '\'' +
+                &quot;, massToOther='&quot; + massToOther + '\'' +
+                '}';
+    }
+
+    public Set&lt;Launch&gt; getLaunches(){
+<span class="fc" id="L162">        return launches;</span>
+    }
+
+    public void setLaunches(Set&lt;Launch&gt; newlaunches){
+<span class="fc" id="L166">        notNull(newlaunches,&quot;launches cannot be null&quot;);</span>
+<span class="fc" id="L167">        this.launches = newlaunches;</span>
+<span class="fc" id="L168">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
