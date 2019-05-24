@@ -16,9 +16,7 @@ import spark.template.freemarker.FreeMarkerEngine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static org.apache.logging.log4j.core.util.Closer.closeSilently;
 import static spark.Spark.get;
@@ -153,7 +151,6 @@ public class App {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 dao.createOrUpdate(user);
-
                 res.status(301);
                 req.session(true);
                 req.session().attribute("user", user);
@@ -164,6 +161,25 @@ public class App {
             }
         }, new FreeMarkerEngine());
     }
+
+   /* private static Boolean checkUserExist(User user)
+    {
+        boolean exit = false;
+        try {
+            Collection<User> users = dao.loadAll(User.class);
+            if (users != null) {
+                for (User user1 : users) {
+                    if (user.equals(user1)) {
+                        exit = true;
+                    }
+                }
+            }
+        }catch (Exception e)
+        {
+            e.getMessage();
+        }
+        return exit;
+    }*/
 
     private static void handleGetHello() {
         get("/hello", (req, res) -> {
