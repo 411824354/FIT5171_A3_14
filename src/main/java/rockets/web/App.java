@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rockets.dataaccess.DAO;
 import rockets.dataaccess.neo4j.Neo4jDAO;
+import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 import rockets.model.User;
 import spark.ModelAndView;
@@ -297,6 +298,21 @@ public class App {
 
     // TODO: Need to TDD this
     private static void handleGetRocket() {
+        get("/rocket/:id", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            try {
+                String id = req.params(":id");
+                Rocket rocket = dao.load(Rocket.class, Long.parseLong(id));
+                if (null != rocket) {
+                    attributes.put("rocket", rocket);
+                } else {
+                    attributes.put("errorMsg", "No rocket with the ID " + id + ".");
+                }
+                return new ModelAndView(attributes, "rocket.html.ftl");
+            } catch (Exception e) {
+                return handleException(res, attributes, e, "rocket.html.ftl");
+            }
+        }, new FreeMarkerEngine());
 
     }
 
@@ -304,46 +320,68 @@ public class App {
     private static void handlePostCreateRocket() {
         post("/rocket/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
-            String email = req.queryParams("email");
-            String password = req.queryParams("password");
-            String firstName = req.queryParams("firstName");
-            String lastName = req.queryParams("lastName");
+            String rocketName = req.queryParams("rocketName");
+            String rocketCountry = req.queryParams("rocketCountry");
+            String providerName = req.queryParams("providerName");
+            String providerCountry = req.queryParams("providerCountry");
+            String providerYear = req.queryParams("providerYear");
 
-            attributes.put("email", email);
-            attributes.put("firstName", firstName);
-            attributes.put("lastName", lastName);
+            attributes.put("rocketName", rocketName);
+            attributes.put("rocketCountry", rocketCountry);
 
-            logger.info("Registering <" + email + ">, " + password);
+            logger.info("Create <" + rocketName + ">, " + rocketCountry);
 
             Rocket rocket;
+            LaunchServiceProvider launchServiceProvider;
             try {
-                rocket = new Rocket();
-
+                launchServiceProvider = new LaunchServiceProvider(providerName,Integer.parseInt(providerYear),providerCountry);
+                rocket = new Rocket(rocketName,rocketCountry,launchServiceProvider);
+                //if (!checkProviderExist(launchServiceProvider))
+                //{
+                    dao.createOrUpdate(launchServiceProvider);
+               // }
                 dao.createOrUpdate(rocket);
                 res.status(301);
                 req.session(true);
-                req.session().attribute("rocket", rocket);
-                res.redirect("/hello");
-                return new ModelAndView(attributes, "base_page.html.ftl");
+                //req.session().attribute("rocket", rocket);
+                res.redirect("/rockets");
+                return new ModelAndView(attributes,"rockets.html.ftl");
             } catch (Exception e) {
-                return handleException(res, attributes, e, "register.html.ftl");
+                return handleException(res, attributes, e, "create_rocket1.html.ftl");
             }
         }, new FreeMarkerEngine());
+    }
+
+    private static boolean checkProviderExist(LaunchServiceProvider launchServiceProvider1) {
+        boolean exit = false;
+        try {
+            Collection<LaunchServiceProvider> launchServiceProviders = dao.loadAll(LaunchServiceProvider.class);
+            if (launchServiceProviders != null) {
+                for (LaunchServiceProvider launchServiceProvider : launchServiceProviders) {
+                    if (launchServiceProvider.equals(launchServiceProvider1)) {
+                        exit = true;
+                    }
+                }
+            }
+        }catch (Exception e)
+        {
+            e.getMessage();
+        }
+        return exit;
+
     }
 
     // TODO: Need to TDD this
     private static void handleGetCreateRocket() {
         get("/rocket/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
-            attributes.put("description", "");
-            attributes.put("location", "");
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d H:mm:ss");
-            String strDate = sdf.format(date);
-            attributes.put("time",strDate);
-            attributes.put("missionName", "");
+            attributes.put("rocketName", "");
+            attributes.put("rocketCountry", "");
+            attributes.put("providerName","");
+            attributes.put("providerCountry", "");
+            attributes.put("providerYear", "");
 
-            return new ModelAndView(attributes, "create_rocket.html.ftl");
+            return new ModelAndView(attributes, "create_rocket1.html.ftl");
         }, new FreeMarkerEngine());
     }
 
@@ -352,7 +390,7 @@ public class App {
         get("/rockets", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
             try {
-                attributes.put("missions", dao.loadAll(Rocket.class));
+                attributes.put("rockets", dao.loadAll(Rocket.class));
                 return new ModelAndView(attributes, "rockets.html.ftl");
             } catch (Exception e) {
                 return handleException(res, attributes, e, "rockets.html.ftl");
