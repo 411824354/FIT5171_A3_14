@@ -26,7 +26,7 @@ import static org.apache.logging.log4j.core.util.Closer.closeSilently;
 import static spark.Spark.get;
 import static spark.Spark.port;
 import static spark.Spark.post;
-
+//test code smell
 public class App {
     private static Logger logger = LoggerFactory.getLogger(App.class);
 
