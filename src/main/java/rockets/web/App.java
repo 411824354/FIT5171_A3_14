@@ -150,6 +150,11 @@ public class App {
                 user.setPassword(password);
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
+                if (checkUserExist(user))
+                {
+                    res.redirect("/hello");
+                    return new ModelAndView(attributes, "base_page.html.ftl");
+                }
                 dao.createOrUpdate(user);
                 res.status(301);
                 req.session(true);
@@ -160,9 +165,10 @@ public class App {
                 return handleException(res, attributes, e, "register.html.ftl");
             }
         }, new FreeMarkerEngine());
+
     }
 
-   /* private static Boolean checkUserExist(User user)
+   private static Boolean checkUserExist(User user)
     {
         boolean exit = false;
         try {
@@ -179,7 +185,7 @@ public class App {
             e.getMessage();
         }
         return exit;
-    }*/
+    }
 
     private static void handleGetHello() {
         get("/hello", (req, res) -> {

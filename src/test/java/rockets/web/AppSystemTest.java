@@ -138,7 +138,7 @@ public class AppSystemTest {
 
         JWebUnit.submit();
 
-       /* JWebUnit.assertTextNotPresent("Welcome back: Jane Who!");*/
+        JWebUnit.assertTextNotPresent("Welcome back: Jane Who!");
     }
 
     @Test
