@@ -2,9 +2,7 @@ package rockets.dataaccess.neo4j;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -14,32 +12,32 @@ import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 import rockets.model.User;
 
+import java.io.File;
 import java.time.LocalDate;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class Neo4jDAOUnitTest {
-    private DAO dao;
-    private Session session;
-    private SessionFactory sessionFactory;
+    private static final String TEST_DB = "target/test-data/test-db";
 
-    private LaunchServiceProvider esa;
-    private LaunchServiceProvider spacex;
+    private static DAO dao;
+    private static Session session;
+    private static SessionFactory sessionFactory;
+
+    private static LaunchServiceProvider esa;
+    private static LaunchServiceProvider spacex;
     private Rocket rocket;
 
     @BeforeAll
     public void initializeNeo4j() {
-        ServerControls embeddedDatabaseServer = TestServerBuilders.newInProcessBuilder().newServer();
-        GraphDatabaseService dbService = embeddedDatabaseServer.graph();
-        EmbeddedDriver driver = new EmbeddedDriver(dbService);
+        EmbeddedDriver driver = createEmbeddedDriver(TEST_DB);
+
         sessionFactory = new SessionFactory(driver, User.class.getPackage().getName());
         session = sessionFactory.openSession();
-        dao = new Neo4jDAO(session);
+        dao = new Neo4jDAO(sessionFactory);
     }
 
     @BeforeEach
@@ -47,6 +45,16 @@ public class Neo4jDAOUnitTest {
         esa = new LaunchServiceProvider("ESA", 1970, "Europe");
         spacex = new LaunchServiceProvider("SpaceX", 2002, "USA");
         rocket = new Rocket("F9", "USA", spacex);
+    }
+
+    private static EmbeddedDriver createEmbeddedDriver(String fileDir) {
+        File file = new File(fileDir);
+        Configuration configuration = new Configuration.Builder()
+                .uri(file.toURI().toString()) // For Embedded
+                .build();
+        EmbeddedDriver driver = new EmbeddedDriver();
+        driver.configure(configuration);
+        return driver;
     }
 
     @Test
@@ -84,17 +92,16 @@ public class Neo4jDAOUnitTest {
     @Test
     public void shouldNotSaveTwoSameRockets() {
         assertNull(spacex.getId());
+
         Rocket rocket1 = new Rocket("F9", "USA", spacex);
         Rocket rocket2 = new Rocket("F9", "USA", spacex);
         assertEquals(rocket1, rocket2);
-
         dao.createOrUpdate(rocket1);
         assertNotNull(spacex.getId());
         Collection<Rocket> rockets = dao.loadAll(Rocket.class);
         assertEquals(1, rockets.size());
         Collection<LaunchServiceProvider> manufacturers = dao.loadAll(LaunchServiceProvider.class);
         assertEquals(1, manufacturers.size());
-
         dao.createOrUpdate(rocket2);
         manufacturers = dao.loadAll(LaunchServiceProvider.class);
         assertEquals(1, manufacturers.size());
@@ -171,49 +178,21 @@ public class Neo4jDAOUnitTest {
     }
 
     @Test
-    public void shouldDeleteLaunchWithoutDeleteLSP() {
-        Launch launch = new Launch();
-        launch.setLaunchDate(LocalDate.of(2018, 7, 1));
-        launch.setLaunchVehicle(rocket);
-        launch.setLaunchServiceProvider(esa);
-        launch.setOrbit("LEO");
-        dao.createOrUpdate(launch);
+    public void shouldSaveARocketBeforeALSPDoesAcrossSessionsNotCreateDuplicateRockets() {
+        assertEquals(spacex, rocket.getManufacturer());
+        spacex.getRockets().add(rocket);
+        dao.createOrUpdate(spacex);
+        assertEquals(1, dao.loadAll(Rocket.class).size());
 
-        Collection<Launch> launches = dao.loadAll(Launch.class);
-        assertNotNull(launch.getId());
-        assertNotNull(launch.getLaunchServiceProvider().getId());
-        assertFalse(launches.isEmpty());
-        assertTrue(launches.contains(launch));
-        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
+        dao.close();
 
-        dao.delete(launch);
-        assertTrue(dao.loadAll(Launch.class).isEmpty());
-        Collection<LaunchServiceProvider> prividers = dao.loadAll(LaunchServiceProvider.class);
-        assertTrue(prividers.contains(esa));
+        initializeNeo4j();
+
+        rocket.setId(null);
+        spacex.setId(null);
+        dao.createOrUpdate(spacex);
+        assertEquals(1, dao.loadAll(Rocket.class).size());
     }
-
-    @Test
-    public void shouldDeleteLaunchWithoutDeleteRocket() {
-        Launch launch = new Launch();
-        launch.setLaunchDate(LocalDate.of(2018, 7, 1));
-        launch.setLaunchVehicle(rocket);
-        launch.setLaunchServiceProvider(esa);
-        launch.setOrbit("LEO");
-        dao.createOrUpdate(launch);
-
-        Collection<Launch> launches = dao.loadAll(Launch.class);
-        assertNotNull(launch.getId());
-        assertNotNull(launch.getLaunchVehicle().getId());
-        assertFalse(launches.isEmpty());
-        assertTrue(launches.contains(launch));
-        assertFalse(dao.loadAll(Rocket.class).isEmpty());
-
-        dao.delete(launch);
-        assertTrue(dao.loadAll(Launch.class).isEmpty());
-        assertFalse(dao.loadAll(Rocket.class).isEmpty());
-    }
-
-
 
     @AfterEach
     public void tearDown() {
@@ -224,25 +203,5 @@ public class Neo4jDAOUnitTest {
     public void closeNeo4jSession() {
         session.clear();
         sessionFactory.close();
-    }
-
-    @Test
-    public void testSaveUniqueLaunchTwiceOnlySavesOne() {
-        LaunchServiceProvider provider = new LaunchServiceProvider("ESA", 1970, "Europe");
-        Launch launch = new Launch(LocalDate.of(2017,01,01), rocket, provider,"LEO");
-        dao.createOrUpdate(launch);
-        Collection<Launch> launches = dao.loadAll(Launch.class);
-        assertTrue(!launches.isEmpty(),"Exists");
-        assertTrue(launches.contains(launch),"contains launch");
-        Launch loadedLaunch = launches.iterator().next();
-        assertNull(loadedLaunch.getFunction(),"null function");
-        assertFalse(dao.loadAll(Rocket.class).isEmpty(),"rocket exists");
-        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty(),"LSP exists");
-
-        dao.delete(rocket);
-        assertTrue(dao.loadAll(Rocket.class).isEmpty(),"rocket no longer exists");
-        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty(),"LSP still exists");
-
-
     }
 }

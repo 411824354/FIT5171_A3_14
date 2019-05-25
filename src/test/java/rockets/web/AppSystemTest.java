@@ -132,7 +132,7 @@ public class AppSystemTest {
         JWebUnit.assertTextPresent("User Registration");
 
         JWebUnit.setTextField("email", "abc@example.com");
-        JWebUnit.setTextField("password", "1234");
+        JWebUnit.setTextField("password", "bboylashige748A...@@@");
         JWebUnit.setTextField("firstName", "Jane");
         JWebUnit.setTextField("lastName", "Who");
 

@@ -1,5 +1,6 @@
 package rockets.web;
 
+import javafx.scene.input.DataFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rockets.dataaccess.DAO;
@@ -16,6 +17,7 @@ import spark.template.freemarker.FreeMarkerEngine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.apache.logging.log4j.core.util.Closer.closeSilently;
@@ -300,10 +302,48 @@ public class App {
 
     // TODO: Need to TDD this
     private static void handlePostCreateRocket() {
+        post("/rocket/create", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            String email = req.queryParams("email");
+            String password = req.queryParams("password");
+            String firstName = req.queryParams("firstName");
+            String lastName = req.queryParams("lastName");
+
+            attributes.put("email", email);
+            attributes.put("firstName", firstName);
+            attributes.put("lastName", lastName);
+
+            logger.info("Registering <" + email + ">, " + password);
+
+            Rocket rocket;
+            try {
+                rocket = new Rocket();
+                dao.createOrUpdate(rocket);
+                res.status(301);
+                req.session(true);
+                req.session().attribute("rocket", rocket);
+                res.redirect("/hello");
+                return new ModelAndView(attributes, "base_page.html.ftl");
+            } catch (Exception e) {
+                return handleException(res, attributes, e, "register.html.ftl");
+            }
+        }, new FreeMarkerEngine());
     }
 
     // TODO: Need to TDD this
     private static void handleGetCreateRocket() {
+        get("/rocket/create", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("description", "");
+            attributes.put("location", "");
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d H:mm:ss");
+            String strDate = sdf.format(date);
+            attributes.put("time",strDate);
+            attributes.put("missionName", "");
+
+            return new ModelAndView(attributes, "create_rocket.html.ftl");
+        }, new FreeMarkerEngine());
     }
 
 

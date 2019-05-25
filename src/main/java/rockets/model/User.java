@@ -88,13 +88,13 @@ public class User extends Entity {
     //https://stackoverflow.com/questions/3802192/regexp-java-for-password-validation
     public void setPassword(String password) {
         notBlank(password, "password cannot be null or empty");
-       /* String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+        String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
         if (password.matches(pattern)){
             this.password = password;
         }
         else{
             throw new IllegalArgumentException("Invalid password");
-        }*/
+        }
        this.password = password;
 
     }

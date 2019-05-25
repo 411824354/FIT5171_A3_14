@@ -83,6 +83,7 @@ public class Neo4jDAO implements DAO {
             entity.setId(existingEntity.getId());
         }
         Transaction tx = session.beginTransaction();
+        saveOutgoingEntities(entity, clazz);
         session.save(entity);
         tx.commit();
         return entity;

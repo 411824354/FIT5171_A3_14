@@ -94,15 +94,18 @@ public class Rocket extends Entity {
     }
 
     public void setMassToLEO(String massToLEO) {
+        notNull(massToLEO, "massToLEO cannot be null");
         notNull(massToLEO);
         this.massToLEO = massToLEO;
     }
 
     public void setMassToGTO(String massToGTO) {
+        notNull(massToLEO, "massToGTO cannot be null");
         this.massToGTO = massToGTO;
     }
 
     public void setMassToOther(String massToOther) {
+        notNull(massToOther,"massToOther cannot be null");
         this.massToOther = massToOther;
     }
 
@@ -112,14 +115,6 @@ public class Rocket extends Entity {
 
     public void setLatestYearFlight(int latestYearFlight) {
         this.latestYearFlight = latestYearFlight;
-    }
-
-    public Set<Launch> getLaunches() {
-        return launches;
-    }
-
-    public void setLaunches(Set<Launch> launches) {
-        this.launches = launches;
     }
 
     @Override
@@ -150,4 +145,14 @@ public class Rocket extends Entity {
                 ", latestYearFlight=" + latestYearFlight +
                 '}';
     }
+
+    public Set<Launch> getLaunches(){
+        return launches;
+    }
+
+    public void setLaunches(Set<Launch> newlaunches){
+        notNull(newlaunches,"launches cannot be null");
+        this.launches = newlaunches;
+    }
+
 }
