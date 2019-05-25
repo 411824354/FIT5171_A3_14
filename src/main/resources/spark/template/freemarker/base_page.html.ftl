@@ -32,6 +32,7 @@
 		<li>See the list of <a href="/users">users</a> registered with the system.</li>
 		<li>See the list of <a href="/rockets">rockets</a>.</li>
 		<li>See the list of <a href="/launches">launches</a>.</li>
+		<li><a href="/mining">Rocket Miner</a>.</li>
 	</ul>
 </div>
 

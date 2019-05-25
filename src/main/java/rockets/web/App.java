@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.apache.logging.log4j.core.util.Closer.closeSilently;
@@ -92,9 +93,63 @@ public class App {
         handleGetCreateLaunch();
 
         handlePostCreateLaunch();
+
+        handleGetLaunch();
+
+        handleGetMining();
+    }
+
+    private static void handleGetLaunch() {
+        get("/launch/:id", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            try {
+                String id = req.params(":id");
+                Launch launch = dao.load(Launch.class, Long.parseLong(id));
+                if (null != launch) {
+                    attributes.put("launch", launch);
+                } else {
+                    attributes.put("errorMsg", "No launch with the ID " + id + ".");
+                }
+                return new ModelAndView(attributes, "launch.html.ftl");
+            } catch (Exception e) {
+                return handleException(res, attributes, e, "launch.html.ftl");
+            }
+        }, new FreeMarkerEngine());
+    }
+
+    private static void handleGetMining() {
     }
 
     private static void handlePostCreateLaunch() {
+        post("/launch/create", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            String rocketName = req.queryParams("rocketName");
+            String launchSite = req.queryParams("launchSite");
+            String launchOrbit = req.queryParams("launchOrbit");
+            LocalDate localDate = LocalDate.now();
+            attributes.put("rocketName", rocketName);
+            attributes.put("date", localDate);
+
+            logger.info("Create <" + rocketName + ">, " + localDate);
+            Launch launch;
+            Rocket rocket;
+            try {
+                rocket = dao.getRocketByName(rocketName);
+                launch = new Launch();
+                launch.setLaunchVehicle(rocket);
+                launch.setOrbit(launchOrbit);
+                launch.setLaunchSite(launchSite);
+                launch.setLaunchDate(localDate);
+                dao.createOrUpdate(launch);
+                res.status(301);
+                req.session(true);
+                //req.session().attribute("rocket", rocket);
+                res.redirect("/launches");
+                return new ModelAndView(attributes,"launches.html.ftl");
+            } catch (Exception e) {
+                return handleException(res, attributes, e, "create_launch.html.ftl");
+            }
+        }, new FreeMarkerEngine());
     }
 
     private static void handleGetCreateLaunch() {

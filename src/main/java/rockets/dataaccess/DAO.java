@@ -1,6 +1,7 @@
 package rockets.dataaccess;
 
 import rockets.model.Entity;
+import rockets.model.Rocket;
 import rockets.model.User;
 
 import java.util.Collection;
@@ -15,6 +16,8 @@ public interface DAO {
     <T extends Entity> void delete(T entity);
 
     User getUserByEmail(String email);
+
+    Rocket getRocketByName (String name);
 
     void close();
 }

@@ -19,9 +19,9 @@
 <div>
 <#if errorMsg?? && errorMsg?has_content>
     <li><h4 class="errorMsg">${errorMsg}</h4></li>
-<#elseif rockets?? && rockets?has_content>
+<#elseif launches?? && launches?has_content>
     <ul>
-        <#list rockets as rocket>
+        <#list launches as launch>
             <li><a href="/launch/${launch.id}">${launch.launchDate},${launch.launchVehicle.name}</a></li>
         </#list>
 
