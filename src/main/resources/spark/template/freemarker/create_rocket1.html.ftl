@@ -27,7 +27,7 @@
 <div>
     <p>* Fields are required.</p>
 </div>
-<form name="create_event" action="/rocket/create" method="POST">
+<form name="create_event" action="/rocket1/create" method="POST">
     <div id="admin_left_pane" class="fieldset_without_border">
         <div><p>Rocket Details</p></div>
         <ol>

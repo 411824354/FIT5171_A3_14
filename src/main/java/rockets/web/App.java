@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rockets.dataaccess.DAO;
 import rockets.dataaccess.neo4j.Neo4jDAO;
+import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 import rockets.model.User;
@@ -86,6 +87,37 @@ public class App {
 
         // "/launches"
 //        handleGetLaunches();
+        handleGetLaunches();
+
+        handleGetCreateLaunch();
+
+        handlePostCreateLaunch();
+    }
+
+    private static void handlePostCreateLaunch() {
+    }
+
+    private static void handleGetCreateLaunch() {
+        get("/launch/create", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("rocketName", "");
+            attributes.put("launchSite", "");
+            attributes.put("launchOrbit","");
+
+            return new ModelAndView(attributes, "create_launch.html.ftl");
+        }, new FreeMarkerEngine());
+    }
+
+    private static void handleGetLaunches() {
+        get("/launches", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            try {
+                attributes.put("launches", dao.loadAll(Launch.class));
+                return new ModelAndView(attributes, "launches.html.ftl");
+            } catch (Exception e) {
+                return handleException(res, attributes, e, "launches.html.ftl");
+            }
+        }, new FreeMarkerEngine());
 
     }
 
@@ -297,7 +329,7 @@ public class App {
 
     // TODO: Need to TDD this
     private static void handleGetRocket() {
-        get("/rocket/:id", (req, res) -> {
+       get("/rocket/:id", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
             try {
                 String id = req.params(":id");
@@ -317,7 +349,7 @@ public class App {
 
     // TODO: Need to TDD this
     private static void handlePostCreateRocket() {
-        post("/rocket/create", (req, res) -> {
+        post("/rocket1/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
             String rocketName = req.queryParams("rocketName");
             String rocketCountry = req.queryParams("rocketCountry");
@@ -372,7 +404,7 @@ public class App {
 
     // TODO: Need to TDD this
     private static void handleGetCreateRocket() {
-        get("/rocket/create", (req, res) -> {
+        get("/rocket1/create", (req, res) -> {
             Map<String, Object> attributes = new HashMap<>();
             attributes.put("rocketName", "");
             attributes.put("rocketCountry", "");

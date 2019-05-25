@@ -27,7 +27,7 @@
 
     </ul>
 <#else>
-    <p>No rocket yet in the system. <a href="/rocket/create">Create one</a> now!</p>
+    <p>No rocket yet in the system. <a href="/rocket1/create">Create one</a> now!</p>
 </#if>
 
 </div>
