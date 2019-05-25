@@ -1,6 +1,5 @@
 package rockets.web;
 
-import javafx.scene.input.DataFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rockets.dataaccess.DAO;
