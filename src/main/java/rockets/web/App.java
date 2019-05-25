@@ -118,6 +118,11 @@ public class App {
     }
 
     private static void handleGetMining() {
+        get("/mining", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            return new ModelAndView(attributes, "mining.html.ftl");
+
+        }, new FreeMarkerEngine());
     }
 
     private static void handlePostCreateLaunch() {
