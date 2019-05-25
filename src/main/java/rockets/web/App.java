@@ -318,6 +318,7 @@ public class App {
             Rocket rocket;
             try {
                 rocket = new Rocket();
+
                 dao.createOrUpdate(rocket);
                 res.status(301);
                 req.session(true);

@@ -194,6 +194,50 @@ public class Neo4jDAOUnitTest {
         assertEquals(1, dao.loadAll(Rocket.class).size());
     }
 
+    @Test
+    public void shouldDeleteLaunchWithoutDeleteLSP() {
+        Launch launch = new Launch();
+        launch.setLaunchDate(LocalDate.of(2018, 7, 1));
+        launch.setLaunchVehicle(rocket);
+        launch.setLaunchServiceProvider(esa);
+        launch.setOrbit("LEO");
+        dao.createOrUpdate(launch);
+
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        assertNotNull(launch.getId());
+        assertNotNull(launch.getLaunchServiceProvider().getId());
+        assertFalse(launches.isEmpty());
+        assertTrue(launches.contains(launch));
+        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
+
+        dao.delete(launch);
+        assertTrue(dao.loadAll(Launch.class).isEmpty());
+        Collection<LaunchServiceProvider> prividers = dao.loadAll(LaunchServiceProvider.class);
+        assertTrue(prividers.contains(esa));
+    }
+
+    @Test
+    public void shouldDeleteLaunchWithoutDeleteRocket() {
+        Launch launch = new Launch();
+        launch.setLaunchDate(LocalDate.of(2018, 7, 1));
+        launch.setLaunchVehicle(rocket);
+        launch.setLaunchServiceProvider(esa);
+        launch.setOrbit("LEO");
+        dao.createOrUpdate(launch);
+
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        assertNotNull(launch.getId());
+        assertNotNull(launch.getLaunchVehicle().getId());
+        assertFalse(launches.isEmpty());
+        assertTrue(launches.contains(launch));
+        assertFalse(dao.loadAll(Rocket.class).isEmpty());
+
+        dao.delete(launch);
+        assertTrue(dao.loadAll(Launch.class).isEmpty());
+        assertFalse(dao.loadAll(Rocket.class).isEmpty());
+    }
+
+
     @AfterEach
     public void tearDown() {
         session.purgeDatabase();
