@@ -52,6 +52,7 @@ public class Neo4jDAO implements DAO {
         session = sessionFactory.openSession();
     }
 
+
     // Makes sure we save associated entities correctly (only once)
     private <T extends Entity> void saveOutgoingEntities(T entity, Class clazz) {
         if (clazz.equals(Rocket.class)) {
