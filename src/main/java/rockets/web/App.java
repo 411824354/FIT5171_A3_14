@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rockets.dataaccess.DAO;
 import rockets.dataaccess.neo4j.Neo4jDAO;
+import rockets.mining.RocketMiner;
 import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
@@ -97,6 +98,58 @@ public class App {
         handleGetLaunch();
 
         handleGetMining();
+
+        handleGetMostLaunchedRocket();
+
+        handlePostMostLaunchedRocket();
+
+        handleGetMostLaunchedRocketResult();
+    }
+
+    private static void handleGetMostLaunchedRocketResult() {
+        get("mining/mostLaunched/result", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            spark.Session session = req.session();
+            String k = session.attribute("numberK");
+            if (null != k && k.length() != 0) {
+                RocketMiner rocketMiner = new RocketMiner(dao);
+                List<Rocket> rockets = rocketMiner.mostLaunchedRockets(Integer.parseInt(k));
+                attributes.put("rockets", rockets);
+                return new ModelAndView(attributes, "mining_mostLR.html.ftl");
+
+            }
+            return new ModelAndView(attributes, "mining_mostLR.html.ftl");
+        }, new FreeMarkerEngine());
+    }
+
+    private static void handlePostMostLaunchedRocket() {
+        post("/mining/mostLaunched", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            String numberK = req.queryParams("numberK");
+            attributes.put("numberK", numberK);
+
+
+            logger.info("most launched rocket <" + numberK + ">");
+
+            User user;
+            try {
+                res.status(301);
+                req.session(true);
+                req.session().attribute("numberK", numberK);
+                res.redirect("/mining/mostLaunched/result");
+                return new ModelAndView(attributes, "mining_mostLR.html.ftl");
+            } catch (Exception e) {
+                return handleException(res, attributes, e, "mining_mostL.html.ftl");
+            }
+        }, new FreeMarkerEngine());
+    }
+
+    private static void handleGetMostLaunchedRocket() {
+        get("/mining/mostLaunched", (req, res) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("numberK", "");
+            return new ModelAndView(attributes, "mining_mostL.html.ftl");
+        }, new FreeMarkerEngine());
     }
 
     private static void handleGetLaunch() {

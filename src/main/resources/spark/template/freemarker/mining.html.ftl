@@ -18,9 +18,6 @@
 <div>
     <ul>
 		<li><a href="/mining/mostLaunched">most launched rocket</a>.</li>
-		<li><a href="/mostReliableSP">most Reliable LaunchService Providers</a>.</li>
-		<li><a href="/mining/mostRecentLaunches">most Recent Launches</a>.</li>
-
     </ul>
 </div>
 
