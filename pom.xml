@@ -194,9 +194,9 @@
                 <configuration>
                     <targetClasses>
                         <param>rockets.model.*</param>
-                        <!-- <param>rockets.dataaccess.*</param> -->
+                        <param>rockets.dataaccess.*</param>
                         <param>rockets.mining.*</param>
-                        <!--<param>rockets.web.*</param>-->
+                        <param>rockets.web.*</param>
                     </targetClasses>
                     <excludedMethods>
                         <excludedMethod>hashCode</excludedMethod>
@@ -204,7 +204,7 @@
                         <excludedMethod>rockets.model.*.get*</excludedMethod>
                     </excludedMethods>
                     <outputFormats>
-                        <outputFormat>XML</outputFormat>
+                        <outputFormat>HTML</outputFormat>
                     </outputFormats>
                 </configuration>
             </plugin>
